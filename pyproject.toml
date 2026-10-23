@@ -1,0 +1,11 @@
+[project]
+name = "excel-api-dashboard"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]>=0.115",
+    "openpyxl>=3.1",
+    "pandas>=2.2",
+]

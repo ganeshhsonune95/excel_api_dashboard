@@ -1,0 +1,3 @@
+fastapi[standard]>=0.115
+pandas>=2.2
+openpyxl>=3.1

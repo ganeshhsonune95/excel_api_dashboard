@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Excel Insights | Analytics Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#0b1020;--panel:#121a2d;--panel2:#172139;--line:rgba(255,255,255,.09);--text:#f2f5ff;--muted:#94a3bd;--mint:#70f0c0;--blue:#7da7ff;--purple:#bd9cff;--orange:#ffc078}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 10% 0%,#1b2a4b 0%,transparent 35%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:1400px;margin:auto;padding:32px 24px 48px}.top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint);font-weight:800}.title{font-size:clamp(28px,4vw,42px);letter-spacing:-.04em;margin:8px 0}.sub{color:var(--muted);margin:0;line-height:1.5}.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pill{border:1px solid var(--line);background:#ffffff08;color:var(--text);padding:10px 14px;border-radius:12px;font-weight:650;cursor:pointer}.pill.primary{background:var(--mint);color:#06251b;border:0}.status{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center}.dot{width:8px;height:8px;background:var(--mint);border-radius:50%;box-shadow:0 0 12px #70f0c080}.grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}.card{background:linear-gradient(145deg,#18233b,#11192b);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 12px 40px #00000012;min-width:0}.k-label{color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:10px}.k-value{font-size:clamp(25px,3vw,34px);letter-spacing:-.04em;font-weight:760;margin:13px 0 8px}.k-foot{font-size:12px;color:var(--muted)}.accent{color:var(--mint)}.charts{grid-template-columns:1.35fr 1fr 1fr;margin-bottom:16px}.chart-card{min-height:310px}.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:20px}.card-title{font-weight:750;margin:0 0 5px}.card-desc{font-size:12px;color:var(--muted);margin:0}.chart-wrap{height:220px;position:relative}.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.search{flex:1;min-width:190px}.field{width:100%;background:#0b1222;border:1px solid var(--line);border-radius:11px;color:var(--text);padding:11px 13px;outline:none}.field:focus{border-color:var(--mint)}select.field{min-width:155px;width:auto}.table-card{padding:0;overflow:hidden}.table-head{padding:20px 20px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th{text-align:left;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;background:#ffffff04;padding:13px 20px;border-top:1px solid var(--line)}td{padding:15px 20px;border-top:1px solid var(--line);font-size:13px}tbody tr:hover{background:#ffffff05}.tag{display:inline-flex;padding:5px 9px;border-radius:8px;background:#70f0c014;color:var(--mint);font-size:11px;font-weight:700}.money{font-variant-numeric:tabular-nums}.empty{padding:35px;text-align:center;color:var(--muted)}.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px;padding:18px 2px}.error{color:#ffaaa8}.loading{opacity:.6;pointer-events:none}
+@media(max-width:1000px){.charts{grid-template-columns:1fr 1fr}.charts .chart-card:first-child{grid-column:1/-1}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.wrap{padding:22px 14px}.top{align-items:flex-start;flex-direction:column}.kpis,.charts{grid-template-columns:1fr}.charts .chart-card:first-child{grid-column:auto}.k-value{font-size:28px}.card{padding:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">● Live Excel Intelligence</div>
+      <h1 class="title">Business <span style="color:var(--mint)">Insights</span></h1>
+      <p class="sub">A live, API-powered view of the data in your Excel workbook.</p>
+    </div>
+    <div class="actions">
+      <span class="status"><span class="dot"></span><span id="statusText">Connecting to API…</span></span>
+      <button class="pill primary" id="refreshBtn">↻ Refresh data</button>
+    </div>
+  </header>
+
+  <section class="grid kpis">
+    <article class="card"><div class="k-label">Total revenue <span>↗</span></div><div class="k-value" id="revenue">—</div><div class="k-foot">Across all workbook records</div></article>
+    <article class="card"><div class="k-label">Total profit <span>✦</span></div><div class="k-value accent" id="profit">—</div><div class="k-foot" id="margin">Profit margin —</div></article>
+    <article class="card"><div class="k-label">Total costs <span>◈</span></div><div class="k-value" id="cost">—</div><div class="k-foot">Recorded operating costs</div></article>
+    <article class="card"><div class="k-label">Units sold <span>▤</span></div><div class="k-value" id="units">—</div><div class="k-foot" id="recordCount">— records in workbook</div></article>
+  </section>
+
+  <section class="grid charts">
+    <article class="card chart-card"><div class="card-head"><div><h2 class="card-title">Revenue over time</h2><p class="card-desc">Monthly revenue trend</p></div><span class="tag">TREND</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></article>
+    <article class="card chart-card"><div class="card-head"><div><h2 class="card-title">Revenue by region</h2><p class="card-desc">Which regions contribute most</p></div></div><div class="chart-wrap"><canvas id="regionChart"></canvas></div></article>
+    <article class="card chart-card"><div class="card-head"><div><h2 class="card-title">Product mix</h2><p class="card-desc">Revenue contribution by product</p></div></div><div class="chart-wrap"><canvas id="productChart"></canvas></div></article>
+  </section>
+
+  <section class="filters">
+    <input class="field search" id="searchInput" placeholder="Search region or product…" aria-label="Search region or product">
+    <select class="field" id="regionFilter" aria-label="Filter region"><option value="">All regions</option></select>
+    <select class="field" id="productFilter" aria-label="Filter product"><option value="">All products</option></select>
+    <button class="pill" id="clearBtn">Clear filters</button>
+  </section>
+
+  <section class="card table-card">
+    <div class="table-head"><div><h2 class="card-title">Workbook records</h2><p class="card-desc" id="tableSub">Loading records…</p></div><span class="tag" id="rowsTag">0 ROWS</span></div>
+    <div class="table-scroll"><table><thead><tr><th>Date</th><th>Region</th><th>Product</th><th>Revenue</th><th>Cost</th><th>Profit</th><th>Units</th></tr></thead><tbody id="tableBody"><tr><td colspan="7" class="empty">Connecting to your Excel data…</td></tr></tbody></table></div>
+  </section>
+  <footer class="footer"><span>Excel Insights · FastAPI backend</span><span id="updatedAt">Not refreshed yet</span></footer>
+</div>
+<script>
+const API_BASE = window.API_BASE_URL || ""; // Dashboard is served by FastAPI, so same-origin works by default.
+const money = n => new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(Number(n)||0);
+const number = n => new Intl.NumberFormat("en-IN").format(Number(n)||0);
+const palette = ["#70f0c0","#7da7ff","#bd9cff","#ffc078","#ff8fa3","#7de3f2"];
+let allRecords = [], trendChart, regionChart, productChart;
+Chart.defaults.color = "#94a3bd";
+Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.boxWidth = 8;
+const chartOptions = {responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{padding:18}}}};
+function makeChart(id,type,data,options={}) {
+  return new Chart(document.getElementById(id), {type,data,options:{...chartOptions,...options}});
+}
+function fillSelect(id, values, label) {
+  const el=document.getElementById(id), previous=el.value;
+  el.innerHTML=`<option value="">All ${label}</option>`+values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+  if(values.includes(previous)) el.value=previous;
+}
+function escapeHtml(value) {
+  return String(value??"").replace(/[&<>"']/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+}
+async function fetchJson(path) {
+  const response=await fetch(`${API_BASE}${path}`);
+  if(!response.ok) { let msg=`Request failed (${response.status})`; try{msg=(await response.json()).detail||msg}catch{}; throw new Error(msg); }
+  return response.json();
+}
+async function refresh() {
+  document.body.classList.add("loading");
+  try {
+    const [summary, records] = await Promise.all([fetchJson("/api/summary"),fetchJson("/api/data")]);
+    allRecords=records.data||[];
+    document.getElementById("revenue").textContent=money(summary.total_revenue);
+    document.getElementById("profit").textContent=money(summary.total_profit);
+    document.getElementById("cost").textContent=money(summary.total_cost);
+    document.getElementById("units").textContent=number(summary.total_units);
+    document.getElementById("margin").textContent=`${summary.profit_margin_percent}% profit margin`;
+    document.getElementById("recordCount").textContent=`${number(summary.total_records)} records in workbook`;
+    fillSelect("regionFilter",[...new Set(allRecords.map(r=>r.Region).filter(Boolean))].sort(),"regions");
+    fillSelect("productFilter",[...new Set(allRecords.map(r=>r.Product).filter(Boolean))].sort(),"products");
+    renderCharts(summary); renderTable();
+    document.getElementById("statusText").textContent="API connected";
+    document.getElementById("updatedAt").textContent=`Last refreshed ${new Date().toLocaleTimeString()}`;
+  } catch(err) {
+    document.getElementById("statusText").textContent="API connection issue";
+    document.getElementById("statusText").classList.add("error");
+    document.getElementById("tableBody").innerHTML=`<tr><td colspan="7" class="empty error">${escapeHtml(err.message)}<br><br>Confirm FastAPI is running and the Excel file is in the data folder.</td></tr>`;
+    document.getElementById("tableSub").textContent="Unable to load records";
+  } finally { document.body.classList.remove("loading"); }
+}
+function renderCharts(s) {
+  if(trendChart)trendChart.destroy(); if(regionChart)regionChart.destroy(); if(productChart)productChart.destroy();
+  trendChart=makeChart("trendChart","line",{labels:(s.monthly_revenue||[]).map(x=>x.month),datasets:[{label:"Revenue",data:(s.monthly_revenue||[]).map(x=>x.revenue),borderColor:palette[0],backgroundColor:"#70f0c020",fill:true,tension:.35,pointRadius:4,pointBackgroundColor:palette[0]}]},{scales:{y:{beginAtZero:true,grid:{color:"#ffffff10",drawBorder:false},ticks:{callback:v=>money(v)}},x:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.raw)}}}});
+  regionChart=makeChart("regionChart","bar",{labels:(s.region_revenue||[]).map(x=>x.region),datasets:[{label:"Revenue",data:(s.region_revenue||[]).map(x=>x.revenue),backgroundColor:palette.slice(0,4),borderRadius:7,borderSkipped:false}]},{indexAxis:"y",scales:{x:{beginAtZero:true,grid:{color:"#ffffff10"},ticks:{callback:v=>money(v)}},y:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.raw)}}}});
+  productChart=makeChart("productChart","doughnut",{labels:(s.product_revenue||[]).map(x=>x.product),datasets:[{data:(s.product_revenue||[]).map(x=>x.revenue),backgroundColor:palette,borderColor:"#121a2d",borderWidth:4,hoverOffset:5}]},{cutout:"68%",plugins:{legend:{position:"bottom"},tooltip:{callbacks:{label:c=>`${c.label}: ${money(c.raw)}`}}}});
+}
+function renderTable() {
+  const q=document.getElementById("searchInput").value.trim().toLowerCase();
+  const region=document.getElementById("regionFilter").value, product=document.getElementById("productFilter").value;
+  const rows=allRecords.filter(r=>(!q||`${r.Region} ${r.Product}`.toLowerCase().includes(q))&&(!region||r.Region===region)&&(!product||r.Product===product));
+  document.getElementById("rowsTag").textContent=`${rows.length} ROWS`;
+  document.getElementById("tableSub").textContent=`Showing ${rows.length} of ${allRecords.length} records · Filter the workbook data`;
+  document.getElementById("tableBody").innerHTML=rows.length?rows.map(r=>`<tr><td>${escapeHtml(r.Date)}</td><td><span class="tag">${escapeHtml(r.Region)}</span></td><td>${escapeHtml(r.Product)}</td><td class="money">${money(r.Revenue)}</td><td class="money">${money(r.Cost)}</td><td class="money" style="color:${Number(r.Profit)>=0?"var(--mint)":"#ff8fa3"}">${money(r.Profit)}</td><td>${number(r.Units)}</td></tr>`).join(""):`<tr><td colspan="7" class="empty">No matching records. Try clearing your filters.</td></tr>`;
+}
+["searchInput","regionFilter","productFilter"].forEach(id=>document.getElementById(id).addEventListener(id==="searchInput"?"input":"change",renderTable));
+document.getElementById("clearBtn").addEventListener("click",()=>{document.getElementById("searchInput").value="";document.getElementById("regionFilter").value="";document.getElementById("productFilter").value="";renderTable()});
+document.getElementById("refreshBtn").addEventListener("click",refresh);
+refresh();
+</script>
+</body>
+</html>
